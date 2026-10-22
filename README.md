@@ -137,6 +137,23 @@ Compiled distributions will be placed in the `release/` directory.
 
 ---
 
+## iOS (personal build)
+
+This fork can be wrapped with Capacitor for a private build on a personal iPhone. It is not prepared for App Store distribution.
+
+- Toolchain: Capacitor `8.5.3`, Node.js 22+, Xcode 26+ (CI runner `macos-26`).
+- The bundle id must be identical in `capacitor.config.ts`, `ios/App/App.xcodeproj` (`PRODUCT_BUNDLE_IDENTIFIER`) and the App ID of the provisioning profile. `scripts/ios-secrets-check.sh` verifies this before the build.
+- Required GitHub Secrets: `IOS_P12_BASE64`, `IOS_P12_PASSWORD`, `IOS_PROVISION_BASE64`, `KEYCHAIN_PASSWORD`.
+- Encode signing files to base64 and store the result as a secret; never commit the files:
+  - macOS: `base64 -i cert.p12 | pbcopy`, `base64 -i profile.mobileprovision | pbcopy`
+  - Windows (PowerShell): `[Convert]::ToBase64String([IO.File]::ReadAllBytes("cert.p12")) | Set-Clipboard`
+  - Windows (cmd): `certutil -encode cert.p12 cert.b64`, then remove the `-----BEGIN/END-----` lines
+
+> [!WARNING]
+> The Capacitor webview serves the app from the `capacitor://localhost` origin. The official Liner API may reject that origin via CORS. This is a known risk to verify on the first run on the device; do not work around it by spoofing request headers inside the app.
+
+---
+
 ## Contributing
 
 Bug fixes, small features, and docs fixes are welcome. Read [CONTRIBUTING.md](./CONTRIBUTING.md) before you open a pull request. The [license](./LICENSE) limits what a fork is allowed to do.
