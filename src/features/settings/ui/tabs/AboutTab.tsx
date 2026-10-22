@@ -22,6 +22,7 @@ import vhsLogo from "@/assets/branding/logo-vhs.svg";
 import { usePlayerStore, type AccentVariant } from "@/features/player";
 import { useUpdaterStore } from "@/features/updater";
 import { isNativeApp } from "@/shared/platform";
+import NetworkDebugPanel from "@/shared/platform/NetworkDebugPanel";
 
 const brandingLogos: Record<Exclude<AccentVariant, "default">, string> = {
   spotify: spotifyLogo,
@@ -238,6 +239,9 @@ export function AboutTab({ searchQuery }: { searchQuery?: string }) {
             {t("settings.about.website")}
           </Button>
         </div>
+
+        {/* TODO(ios-debug): temporary network debug panel for the iOS build */}
+        {isNativeApp() && <NetworkDebugPanel />}
       </div>
     </div>
   );
