@@ -18,6 +18,8 @@
     "preview": "vite preview",
     "test": "vitest run",
     "test:watch": "vitest",
+    "ios:add": "cap add ios",
+    "ios:sync": "cap sync ios",
     "electron:build": "tsc -b && vite build && electron-builder",
     "electron:build:linux": "tsc -b && vite build && electron-builder --linux",
     "electron:build:win": "pnpm native:build && tsc -b && vite build && electron-builder --win",
@@ -109,6 +111,8 @@
   "dependencies": {
     "@braccato/core": "^1.4.0",
     "@braccato/parsers": "^0.2.1",
+    "@capacitor/core": "8.5.3",
+    "@capacitor/ios": "8.5.3",
     "@mingcute/react": "^1.4.1",
     "@solar-icons/react": "^1.1.1",
     "@tanstack/react-virtual": "^3.13.23",
@@ -132,6 +136,7 @@
     "zustand": "^5.0.12"
   },
   "devDependencies": {
+    "@capacitor/cli": "8.5.3",
     "@tailwindcss/vite": "^4.3.3",
     "@types/node": "^20",
     "@types/react": "^19",
