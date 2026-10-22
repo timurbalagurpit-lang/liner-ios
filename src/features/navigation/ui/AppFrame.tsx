@@ -55,6 +55,7 @@ import {
 } from "@/features/library";
 import { SettingsModal, useCustomizationStore, getBlockStyle } from "@/features/settings";
 import { UpdateModal, UpdateToastBridge } from "@/features/updater";
+import { isNativeApp } from "@/shared/platform";
 
 
 interface AppFrameProps {
@@ -1074,17 +1075,23 @@ export default function AppFrame({ children }: AppFrameProps) {
       <CreatePlaylistModal />
       <ImportReviewModal />
       <SettingsModal />
-      <UpdateModal />
-      <UpdateToastBridge />
-      <WindowControls
-        isFullscreen={isFullscreenPlayer}
-        style={{
-          top: isFullscreenPlayer || isEdgeToEdge ? 12 : 18,
-          right: isFullscreenPlayer || isEdgeToEdge ? 12 : 18,
-          transition: "all 0.28s cubic-bezier(0.22, 1, 0.36, 1)",
-          zIndex: 80,
-        }}
-      />
+      {!isNativeApp() && (
+        <>
+          <UpdateModal />
+          <UpdateToastBridge />
+        </>
+      )}
+      {!isNativeApp() && (
+        <WindowControls
+          isFullscreen={isFullscreenPlayer}
+          style={{
+            top: isFullscreenPlayer || isEdgeToEdge ? 12 : 18,
+            right: isFullscreenPlayer || isEdgeToEdge ? 12 : 18,
+            transition: "all 0.28s cubic-bezier(0.22, 1, 0.36, 1)",
+            zIndex: 80,
+          }}
+        />
+      )}
     </div>
   );
 }

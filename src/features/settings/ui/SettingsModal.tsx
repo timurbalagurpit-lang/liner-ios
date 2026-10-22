@@ -17,6 +17,7 @@ import { UserAvatar } from "@/shared/ui";
 import { useTranslation, getTranslationsForAllLocales } from "@/languages";
 import { useModalStore } from "@/features/library";
 import { useAuthStore } from "@/features/auth";
+import { isNativeApp } from "@/shared/platform";
 import {
   PlaybackTab,
   ShortcutsTab,
@@ -116,6 +117,19 @@ export default function SettingsModal() {
   const [activeTab, setActiveTab] = useState<TabId>("Playback");
   const [searchQuery, setSearchQuery] = useState("");
 
+  const native = isNativeApp();
+  const tabGroups = useMemo(
+    () =>
+      native
+        ? TAB_GROUPS.map((group) => ({ ...group, ids: group.ids.filter((id) => id !== "Overlay") }))
+        : TAB_GROUPS,
+    [native],
+  );
+  const settingItems = useMemo(
+    () => (native ? SETTING_ITEMS.filter((item) => item.tabId !== "Overlay") : SETTING_ITEMS),
+    [native],
+  );
+
   const handleClose = () => {
     setSearchQuery("");
     close();
@@ -185,7 +199,7 @@ export default function SettingsModal() {
       }
     });
 
-    SETTING_ITEMS.forEach((item) => {
+    settingItems.forEach((item) => {
       const texts = [
         ...getTranslationsForAllLocales(item.titleKey),
         ...(item.descKey ? getTranslationsForAllLocales(item.descKey) : []),
@@ -195,27 +209,28 @@ export default function SettingsModal() {
       }
     });
 
+    if (native) set.delete("Overlay");
     return set;
-  }, [searchQuery]);
+  }, [searchQuery, settingItems, native]);
 
   const filteredGroups = useMemo(() => {
-    if (!matchingTabIds) return TAB_GROUPS;
+    if (!matchingTabIds) return tabGroups;
 
-    return TAB_GROUPS.map((group) => {
+    return tabGroups.map((group) => {
       const ids = group.ids.filter((id) => matchingTabIds.has(id));
       return { ...group, ids };
     }).filter((group) => group.ids.length > 0);
-  }, [matchingTabIds]);
+  }, [matchingTabIds, tabGroups]);
 
   useEffect(() => {
     if (!searchQuery.trim()) return;
     if (matchingTabIds && matchingTabIds.size > 0 && !matchingTabIds.has(activeTab)) {
-      const firstMatch = TAB_GROUPS.flatMap((g) => g.ids).find((id) => matchingTabIds.has(id));
+      const firstMatch = tabGroups.flatMap((g) => g.ids).find((id) => matchingTabIds.has(id));
       if (firstMatch) {
         setActiveTab(firstMatch);
       }
     }
-  }, [searchQuery, matchingTabIds, activeTab]);
+  }, [searchQuery, matchingTabIds, activeTab, tabGroups]);
 
   const openExternal = (url: string) => {
     window.open(url, "_blank", "noopener,noreferrer");
@@ -413,7 +428,7 @@ export default function SettingsModal() {
           >
             {activeTab === "Playback" && <PlaybackTab searchQuery={searchQuery} />}
             {activeTab === "Shortcuts" && <ShortcutsTab searchQuery={searchQuery} />}
-            {activeTab === "Overlay" && <OverlayTab searchQuery={searchQuery} />}
+            {activeTab === "Overlay" && !native && <OverlayTab searchQuery={searchQuery} />}
             {activeTab === "Discord" && <DiscordTab searchQuery={searchQuery} />}
             {activeTab === "Appearance" && <AppearanceTab searchQuery={searchQuery} />}
             {activeTab === "Customization" && <CustomizationTab searchQuery={searchQuery} />}

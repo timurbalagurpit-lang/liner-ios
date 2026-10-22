@@ -11,6 +11,7 @@ import { useThemeCustomizationSync } from "@/features/settings";
 import { useTouchBarSync } from "@/features/touchbar";
 import { useOverlaySync } from "@/features/overlay";
 import { useDiscordSync } from "@/features/discord";
+import { isNativeApp } from "@/shared/platform";
 import { AppRoutes } from "./routes";
 import DeeplinkHandler from "./DeeplinkHandler";
 import EnvironmentWarning from "./EnvironmentWarning";
@@ -49,6 +50,7 @@ function DiscordSync() {
 
 export default function App() {
   useWindowDrag();
+  const native = isNativeApp();
 
   return (
     <HashRouter>
@@ -63,8 +65,12 @@ export default function App() {
         <ThemeSync />
         <AppIconSync />
         <PresenceSync />
-        <TouchBarSync />
-        <OverlaySync />
+        {!native && (
+          <>
+            <TouchBarSync />
+            <OverlaySync />
+          </>
+        )}
         <DiscordSync />
         <AppleEmojiProvider>
           <I18nProvider>

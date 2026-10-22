@@ -6,6 +6,7 @@ import { useTranslation } from "@/languages";
 import { usePlayerStore, type AudioQuality } from "@/features/player";
 import { Select } from "@/shared/ui";
 import { useConnectivityStore } from "@/features/connectivity";
+import { isNativeApp } from "@/shared/platform";
 import { SettingRow, SettingSection } from "../controls";
 
 export function AudioTab({ searchQuery }: { searchQuery?: string }) {
@@ -57,66 +58,68 @@ export function AudioTab({ searchQuery }: { searchQuery?: string }) {
         />
       </SettingSection>
 
-      <SettingSection label={t("settings.connection.title")}>
-        <SettingRow
-          title={t("settings.connection.checks_title")}
-          titleKey="settings.connection.checks_title"
-          searchQuery={searchQuery}
-          description={
-            connChecks.length > 0 && connLastRunAt
-              ? t("settings.connection.last_run", {
-                  ok: connChecks.filter((c) => c.status === "ok").length,
-                  total: connChecks.length,
-                  time: new Date(connLastRunAt).toLocaleTimeString(),
-                })
-              : t("settings.connection.never_run")
-          }
-          control={
-            <div className="flex items-center gap-[8px]">
-              {dumpExported && (
+      {!isNativeApp() && (
+        <SettingSection label={t("settings.connection.title")}>
+          <SettingRow
+            title={t("settings.connection.checks_title")}
+            titleKey="settings.connection.checks_title"
+            searchQuery={searchQuery}
+            description={
+              connChecks.length > 0 && connLastRunAt
+                ? t("settings.connection.last_run", {
+                    ok: connChecks.filter((c) => c.status === "ok").length,
+                    total: connChecks.length,
+                    time: new Date(connLastRunAt).toLocaleTimeString(),
+                  })
+                : t("settings.connection.never_run")
+            }
+            control={
+              <div className="flex items-center gap-[8px]">
+                {dumpExported && (
+                  <Button
+                    variant="secondary"
+                    type="button"
+                    onClick={async () => {
+                      const targetPath = useConnectivityStore.getState().lastSavedDumpPath || undefined;
+                      if (window.linerElectron?.openExportFolder) {
+                        await window.linerElectron.openExportFolder(targetPath);
+                      } else if (window.linerElectron?.openDownloads) {
+                        await window.linerElectron.openDownloads(targetPath);
+                      } else {
+                        toast(t("settings.connection.open_folder"), "info");
+                      }
+                    }}
+                    title={t("settings.connection.open_folder")}
+                    aria-label={t("settings.connection.open_folder")}
+                    className="!h-[34px] !w-[34px] !px-0"
+                  >
+                    <FolderOpenLine size={18} />
+                  </Button>
+                )}
                 <Button
                   variant="secondary"
+                  size="sm"
                   type="button"
+                  disabled={connRunning}
                   onClick={async () => {
-                    const targetPath = useConnectivityStore.getState().lastSavedDumpPath || undefined;
-                    if (window.linerElectron?.openExportFolder) {
-                      await window.linerElectron.openExportFolder(targetPath);
-                    } else if (window.linerElectron?.openDownloads) {
-                      await window.linerElectron.openDownloads(targetPath);
-                    } else {
-                      toast(t("settings.connection.open_folder"), "info");
+                    const res = await runAndSaveDump();
+                    if (res.success) {
+                      setDumpExported(true);
+                      toast(t("settings.connection.saved"), "success");
+                    } else if (!res.canceled) {
+                      toast(t("settings.connection.failed"), "error");
                     }
                   }}
-                  title={t("settings.connection.open_folder")}
-                  aria-label={t("settings.connection.open_folder")}
-                  className="!h-[34px] !w-[34px] !px-0"
                 >
-                  <FolderOpenLine size={18} />
+                  {connRunning
+                    ? t("settings.connection.checking")
+                    : t("settings.connection.button")}
                 </Button>
-              )}
-              <Button
-                variant="secondary"
-                size="sm"
-                type="button"
-                disabled={connRunning}
-                onClick={async () => {
-                  const res = await runAndSaveDump();
-                  if (res.success) {
-                    setDumpExported(true);
-                    toast(t("settings.connection.saved"), "success");
-                  } else if (!res.canceled) {
-                    toast(t("settings.connection.failed"), "error");
-                  }
-                }}
-              >
-                {connRunning
-                  ? t("settings.connection.checking")
-                  : t("settings.connection.button")}
-              </Button>
-            </div>
-          }
-        />
-      </SettingSection>
+              </div>
+            }
+          />
+        </SettingSection>
+      )}
     </div>
   );
 }

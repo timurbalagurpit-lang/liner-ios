@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { api, toClientTrack } from "@/shared/api";
 import { playerEngine } from "@/features/player";
+import { isNativeApp } from "@/shared/platform";
 
 interface DeeplinkTarget {
   type: "artist" | "album" | "playlist" | "track";
@@ -21,6 +22,7 @@ export default function DeeplinkHandler() {
   const navigate = useNavigate();
 
   useEffect(() => {
+    if (isNativeApp()) return;
     const off = window.linerElectron?.onDeeplink((target: DeeplinkTarget) => {
       void (async () => {
         try {

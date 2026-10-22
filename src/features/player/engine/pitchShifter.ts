@@ -15,6 +15,8 @@
  * Perfectly tuned for the authentic "Slowed + Reverb" aesthetic.
  */
 
+import { isNativeApp } from "@/shared/platform";
+
 const GRAIN_PERIOD = 0.038; // 38ms grain window
 const NUM_TAPS = 4;
 
@@ -227,7 +229,7 @@ export class PitchShifterController {
   private isConnected = false;
 
   public attach(audio: HTMLAudioElement): void {
-    if (typeof window === "undefined") return;
+    if (typeof window === "undefined" || isNativeApp()) return;
     const win = window as any;
 
     try {

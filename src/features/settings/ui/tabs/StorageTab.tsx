@@ -6,6 +6,7 @@ import { CheckCircle } from "@solar-icons/react";
 import Button from "@/shared/ui/Button";
 import { useToast } from "@/shared/ui";
 import { useTranslation } from "@/languages";
+import { isNativeApp } from "@/shared/platform";
 import cleanDuckAnimationData from "@/assets/animations/clean_duck.json";
 import {
   getCachedStorageAnalytics,
@@ -576,17 +577,19 @@ export function StorageTab({ searchQuery: _searchQuery }: { searchQuery?: string
             : t("settings.storage.clear_selected")}
         </Button>
 
-        <Button
-          variant="secondary"
-          size="default"
-          type="button"
-          onClick={handleOpenFolder}
-          title={t("settings.storage.open_folder")}
-          className="flex items-center gap-[6px] !h-[40px] px-[14px] font-[500] text-[13px] rounded-xl shrink-0"
-        >
-          <FolderOpenLine size={16} />
-          <span>{t("settings.storage.open_folder")}</span>
-        </Button>
+        {!isNativeApp() && (
+          <Button
+            variant="secondary"
+            size="default"
+            type="button"
+            onClick={handleOpenFolder}
+            title={t("settings.storage.open_folder")}
+            className="flex items-center gap-[6px] !h-[40px] px-[14px] font-[500] text-[13px] rounded-xl shrink-0"
+          >
+            <FolderOpenLine size={16} />
+            <span>{t("settings.storage.open_folder")}</span>
+          </Button>
+        )}
       </div>
           </motion.div>
         )}

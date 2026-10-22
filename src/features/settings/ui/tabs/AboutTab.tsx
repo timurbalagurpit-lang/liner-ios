@@ -21,6 +21,7 @@ import scanlinesLogo from "@/assets/branding/logo-scanlines.svg";
 import vhsLogo from "@/assets/branding/logo-vhs.svg";
 import { usePlayerStore, type AccentVariant } from "@/features/player";
 import { useUpdaterStore } from "@/features/updater";
+import { isNativeApp } from "@/shared/platform";
 
 const brandingLogos: Record<Exclude<AccentVariant, "default">, string> = {
   spotify: spotifyLogo,
@@ -178,23 +179,25 @@ export function AboutTab({ searchQuery }: { searchQuery?: string }) {
         </span>
 
         {/* Update Checker Button */}
-        <div className="w-full flex items-center justify-center mb-[20px]">
-          <Button
-            variant="secondary"
-            size="sm"
-            onClick={handleCheckUpdates}
-            disabled={checkingUpdate}
-            className="!h-[32px] !px-[16px] !text-[12.5px] !gap-[7px] !rounded-lg"
-          >
-            <Refresh1Line
-              size={14}
-              className={checkingUpdate ? "animate-spin text-text-primary" : "text-text-tertiary"}
-            />
-            {checkingUpdate
-              ? t("settings.about.checking_updates")
-              : t("settings.about.check_updates")}
-          </Button>
-        </div>
+        {!isNativeApp() && (
+          <div className="w-full flex items-center justify-center mb-[20px]">
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={handleCheckUpdates}
+              disabled={checkingUpdate}
+              className="!h-[32px] !px-[16px] !text-[12.5px] !gap-[7px] !rounded-lg"
+            >
+              <Refresh1Line
+                size={14}
+                className={checkingUpdate ? "animate-spin text-text-primary" : "text-text-tertiary"}
+              />
+              {checkingUpdate
+                ? t("settings.about.checking_updates")
+                : t("settings.about.check_updates")}
+            </Button>
+          </div>
+        )}
 
         {/* Social & Support Links */}
         <div className="flex flex-wrap items-center justify-center gap-[6px] w-full pt-[16px] border-t border-border-primary/30">
